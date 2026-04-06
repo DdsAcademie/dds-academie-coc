@@ -3,10 +3,12 @@ import Navbar from './components/Navbar'
 import HeroSection from './components/HeroSection'
 import StatsBar from './components/StatsBar'
 import GuildeCard from './components/GuildeCard'
-import { getAllClansInfo } from './lib/coc-api'
+import { getAllClanStats } from './lib/clan-stats'
 import { GUILDES_CONFIG, FALLBACK_CLAN } from './lib/guildes-config'
 
-function GuildesSection({ clans }: { clans: any[] }) {
+export const dynamic = 'force-dynamic'
+
+function GuildesSection({ clanStats }: { clanStats: Awaited<ReturnType<typeof getAllClanStats>> }) {
   return (
     <section style={{ padding: '0 2rem 3rem 2rem' }}>
       {/* Titre de section */}
@@ -47,14 +49,14 @@ function GuildesSection({ clans }: { clans: any[] }) {
         }}
       >
         {GUILDES_CONFIG.map((config, i) => {
-          const clanData = clans[i] ?? FALLBACK_CLAN
+          const stat = clanStats[i]
           return (
             <GuildeCard
               key={config.tag}
-              name={clanData.name ?? config.staticName}
+              name={stat.name || config.staticName}
               tag={config.category}
-              category={clanData.warLeague?.name ?? 'Non classé'}
-              members={clanData.members ?? 0}
+              category={config.category}
+              members={stat.members}
               maxMembers={50}
               description={config.description}
               hdvRequirement={config.hdvRequirement}
@@ -63,7 +65,7 @@ function GuildesSection({ clans }: { clans: any[] }) {
               logoUrl={config.logoUrl}
               logoDelay={config.logoDelay}
               discordUrl={config.discordUrl}
-              warLeague={clanData.warLeague?.name ?? 'Non classé'}
+              warLeague={stat.war_league}
             />
           )
         })}
@@ -81,8 +83,8 @@ function GuildesSection({ clans }: { clans: any[] }) {
 }
 
 export default async function HomePage() {
-  const clans = await getAllClansInfo()
-  const totalMembers = clans.reduce((sum, clan) => sum + (clan?.members ?? 0), 0)
+  const clanStats = await getAllClanStats()
+  const totalMembers = clanStats.reduce((sum, c) => sum + c.members, 0)
 
   return (
     <>
@@ -92,7 +94,7 @@ export default async function HomePage() {
         <main style={{ paddingTop: '64px' }}>
           <HeroSection />
           <StatsBar totalMembers={totalMembers} />
-          <GuildesSection clans={clans} />
+          <GuildesSection clanStats={clanStats} />
         </main>
       </div>
     </>

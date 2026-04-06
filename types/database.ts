@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      clan_stats: {
+        Row: {
+          tag: string
+          name: string
+          members: number
+          clan_level: number
+          war_league: string
+          war_wins: number
+          updated_at: string
+        }
+        Insert: {
+          tag: string
+          name?: string
+          members?: number
+          clan_level?: number
+          war_league?: string
+          war_wins?: number
+          updated_at?: string
+        }
+        Update: {
+          tag?: string
+          name?: string
+          members?: number
+          clan_level?: number
+          war_league?: string
+          war_wins?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       announcements: {
         Row: {
           admin_id: string | null
