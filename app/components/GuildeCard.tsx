@@ -10,7 +10,7 @@ interface GuildeCardProps {
   hdvRequirement: string
   primaryColor: string
   primaryColorRgb: string
-  logoUrl: string
+  logoUrl: string | null
   logoDelay: number
   discordUrl: string
   warLeague: string
@@ -78,18 +78,38 @@ export default function GuildeCard({
           justifyContent: 'center',
         }}
       >
-        <img
-          src={logoUrl}
-          alt={`Logo ${name}`}
-          style={{
-            width: '88px',
-            height: '88px',
-            objectFit: 'contain',
-            borderRadius: '50%',
-            animation: 'levitation 3s ease-in-out infinite',
-            animationDelay: `${logoDelay}s`,
-          }}
-        />
+        {logoUrl ? (
+          <img
+            src={logoUrl}
+            alt={`Logo ${name}`}
+            style={{
+              width: '88px',
+              height: '88px',
+              objectFit: 'contain',
+              borderRadius: '50%',
+              animation: 'levitation 3s ease-in-out infinite',
+              animationDelay: `${logoDelay}s`,
+            }}
+          />
+        ) : (
+          <div
+            style={{
+              width: '88px',
+              height: '88px',
+              borderRadius: '50%',
+              background: `rgba(${primaryColorRgb}, 0.12)`,
+              border: `2px solid rgba(${primaryColorRgb}, 0.35)`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '32px',
+              animation: 'levitation 3s ease-in-out infinite',
+              animationDelay: `${logoDelay}s`,
+            }}
+          >
+            狼
+          </div>
+        )}
       </div>
 
       {/* Nom */}
