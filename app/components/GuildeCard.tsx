@@ -10,8 +10,10 @@ interface GuildeCardProps {
   hdvRequirement: string
   primaryColor: string
   primaryColorRgb: string
-  logoEmoji: string
+  logoUrl: string
+  logoDelay: number
   discordUrl: string
+  warLeague: string
 }
 
 export default function GuildeCard({
@@ -24,8 +26,10 @@ export default function GuildeCard({
   hdvRequirement,
   primaryColor,
   primaryColorRgb,
-  logoEmoji,
+  logoUrl,
+  logoDelay,
   discordUrl,
+  warLeague,
 }: GuildeCardProps) {
   return (
     <div
@@ -63,22 +67,29 @@ export default function GuildeCard({
         }}
       />
 
-      {/* Logo */}
+      {/* Logo avec animation lévitation */}
       <div
         style={{
-          width: '72px',
-          height: '72px',
-          borderRadius: '50%',
-          background: `rgba(${primaryColorRgb}, 0.12)`,
-          border: `2px solid rgba(${primaryColorRgb}, 0.35)`,
+          width: '88px',
+          height: '88px',
           margin: '0 auto 1.25rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: '28px',
         }}
       >
-        {logoEmoji}
+        <img
+          src={logoUrl}
+          alt={`Logo ${name}`}
+          style={{
+            width: '88px',
+            height: '88px',
+            objectFit: 'contain',
+            borderRadius: '50%',
+            animation: 'levitation 3s ease-in-out infinite',
+            animationDelay: `${logoDelay}s`,
+          }}
+        />
       </div>
 
       {/* Nom */}
@@ -95,6 +106,19 @@ export default function GuildeCard({
         {name}
       </p>
 
+      {/* Ligue CWL */}
+      <p
+        style={{
+          color: '#c8a84b',
+          fontSize: '11px',
+          letterSpacing: '1px',
+          marginBottom: '0.5rem',
+          marginTop: 0,
+        }}
+      >
+        ⚔ {warLeague}
+      </p>
+
       {/* Tag / Catégorie */}
       <p
         style={{
@@ -109,11 +133,11 @@ export default function GuildeCard({
         {tag} · {category}
       </p>
 
-      {/* Compteur membres */}
-      <p style={{ margin: '0 0 0.25rem' }}>
-        <span style={{ color: '#ffffff', fontSize: '28px', fontWeight: 700 }}>{members}</span>
+      {/* Compteur membres (dynamique) */}
+      <div style={{ margin: '0 0 0.25rem' }}>
+        <span style={{ color: '#ffffff', fontSize: '26px', fontWeight: 700 }}>{members}</span>
         <span style={{ color: '#6677aa', fontSize: '13px', fontWeight: 400 }}> / {maxMembers} membres</span>
-      </p>
+      </div>
 
       {/* Description */}
       <p

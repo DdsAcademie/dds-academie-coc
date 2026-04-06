@@ -36,6 +36,12 @@ body {
   50% { transform: scale(1.5); opacity: 0.4; }
 }
 
+@keyframes levitation {
+  0%   { transform: translateY(0px); }
+  50%  { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
 html {
   scroll-behavior: smooth;
 }

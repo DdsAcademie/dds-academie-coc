@@ -1,4 +1,8 @@
-export default function StatsBar() {
+interface StatsBarProps {
+  totalMembers: number
+}
+
+export default function StatsBar({ totalMembers }: StatsBarProps) {
   return (
     <div
       style={{
@@ -9,7 +13,7 @@ export default function StatsBar() {
         border: '1px solid rgba(255,255,255,0.07)',
         borderRadius: '16px',
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
+        gridTemplateColumns: 'repeat(3, 1fr)',
         overflow: 'hidden',
       }}
     >
@@ -27,7 +31,7 @@ export default function StatsBar() {
         </p>
       </div>
 
-      {/* Stat 2 — Membres actifs */}
+      {/* Stat 2 — Membres actifs (dynamique) */}
       <div
         style={{
           padding: '1.5rem 1rem',
@@ -36,7 +40,7 @@ export default function StatsBar() {
         }}
       >
         <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-          <span style={{ color: '#4a9eff', fontSize: '30px', fontWeight: 700 }}>148</span>
+          <span style={{ color: '#4a9eff', fontSize: '30px', fontWeight: 700 }}>{totalMembers}</span>
           <span
             style={{
               width: '8px',
@@ -54,21 +58,7 @@ export default function StatsBar() {
         </p>
       </div>
 
-      {/* Stat 3 — Ligue CWL */}
-      <div
-        style={{
-          padding: '1.5rem 1rem',
-          textAlign: 'center',
-          borderRight: '1px solid rgba(255,255,255,0.06)',
-        }}
-      >
-        <p style={{ color: '#c8a84b', fontSize: '20px', fontWeight: 700, margin: 0 }}>Légendaire</p>
-        <p style={{ color: '#6677aa', fontSize: '10px', letterSpacing: '2.5px', marginTop: '4px', marginBottom: 0 }}>
-          LIGUE CWL
-        </p>
-      </div>
-
-      {/* Stat 4 — Participation guerre */}
+      {/* Stat 3 — Participation guerre */}
       <div
         style={{
           padding: '1.5rem 1rem',

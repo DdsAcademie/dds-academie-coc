@@ -3,53 +3,10 @@ import Navbar from './components/Navbar'
 import HeroSection from './components/HeroSection'
 import StatsBar from './components/StatsBar'
 import GuildeCard from './components/GuildeCard'
+import { getAllClansInfo } from './lib/coc-api'
+import { GUILDES_CONFIG, FALLBACK_CLAN } from './lib/guildes-config'
 
-const GUILDES = [
-  {
-    name: 'DDS Académie',
-    tag: '#PRINCIPALE',
-    category: 'Élite Compétitive',
-    members: 50,
-    maxMembers: 50,
-    description:
-      "Guilde principale du cluster. Guerres quotidiennes, CWL en ligue Légendaire. L'excellence avant tout.",
-    hdvRequirement: 'HDV 17+ REQUIS',
-    primaryColor: '#4a9eff',
-    primaryColorRgb: '74,158,255',
-    logoEmoji: '⚔️',
-    discordUrl: 'https://discord.gg/P48WHFXaGT',
-  },
-  {
-    name: 'OpenSys',
-    tag: '#COMPÉTITIVE',
-    category: 'Perfecteurs',
-    members: 48,
-    maxMembers: 50,
-    description:
-      'Style agressif, perfecteurs. Full Max obligatoire. Participation aux guerres requise sans exception.',
-    hdvRequirement: 'HDV 9+ FULL MAX',
-    primaryColor: '#ff8c00',
-    primaryColorRgb: '255,140,0',
-    logoEmoji: '🐯',
-    discordUrl: 'https://discord.gg/P48WHFXaGT',
-  },
-  {
-    name: 'いえすぽす',
-    tag: '#INTERNATIONALE',
-    category: 'Communautaire',
-    members: 45,
-    maxMembers: 50,
-    description:
-      'Guilde à dominante japonaise. Esprit communautaire fort, stratégies élaborées. HDV 15+ Full Max.',
-    hdvRequirement: 'HDV 15+ FULL MAX',
-    primaryColor: '#9b59ff',
-    primaryColorRgb: '155,89,255',
-    logoEmoji: '狼',
-    discordUrl: 'https://discord.gg/P48WHFXaGT',
-  },
-]
-
-function GuildesSection() {
+function GuildesSection({ clans }: { clans: any[] }) {
   return (
     <section style={{ padding: '0 2rem 3rem 2rem' }}>
       {/* Titre de section */}
@@ -89,9 +46,27 @@ function GuildesSection() {
           alignItems: 'stretch',
         }}
       >
-        {GUILDES.map((guilde) => (
-          <GuildeCard key={guilde.name} {...guilde} />
-        ))}
+        {GUILDES_CONFIG.map((config, i) => {
+          const clanData = clans[i] ?? FALLBACK_CLAN
+          return (
+            <GuildeCard
+              key={config.tag}
+              name={clanData.name ?? config.staticName}
+              tag={config.category}
+              category={clanData.warLeague?.name ?? 'Non classé'}
+              members={clanData.members ?? 0}
+              maxMembers={50}
+              description={config.description}
+              hdvRequirement={config.hdvRequirement}
+              primaryColor={config.primaryColor}
+              primaryColorRgb={config.primaryColorRgb}
+              logoUrl={config.logoUrl}
+              logoDelay={config.logoDelay}
+              discordUrl={config.discordUrl}
+              warLeague={clanData.warLeague?.name ?? 'Non classé'}
+            />
+          )
+        })}
       </div>
 
       <style>{`
@@ -105,7 +80,10 @@ function GuildesSection() {
   )
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const clans = await getAllClansInfo()
+  const totalMembers = clans.reduce((sum, clan) => sum + (clan?.members ?? 0), 0)
+
   return (
     <>
       <AnimatedBackground />
@@ -113,8 +91,8 @@ export default function HomePage() {
         <Navbar />
         <main style={{ paddingTop: '64px' }}>
           <HeroSection />
-          <StatsBar />
-          <GuildesSection />
+          <StatsBar totalMembers={totalMembers} />
+          <GuildesSection clans={clans} />
         </main>
       </div>
     </>

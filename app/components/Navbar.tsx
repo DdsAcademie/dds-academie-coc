@@ -5,7 +5,6 @@ import LoginPanel from './LoginPanel'
 
 export default function Navbar() {
   const [loginOpen, setLoginOpen] = useState(false)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
     <nav
@@ -52,39 +51,7 @@ export default function Navbar() {
         </span>
       </div>
 
-      {/* Pills guildes — cachées sur mobile */}
-      <div
-        className="guild-pills"
-        style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}
-      >
-        {[
-          { label: 'DDS ACADÉMIE', color: '#4a9eff', rgb: '74,158,255' },
-          { label: 'OPENSYS', color: '#ff8c00', rgb: '255,140,0' },
-          { label: 'いえすぽす', color: '#9b59ff', rgb: '155,89,255' },
-        ].map(({ label, color, rgb }) => (
-          <button
-            key={label}
-            style={{
-              color,
-              border: `1px solid rgba(${rgb}, 0.45)`,
-              background: `rgba(${rgb}, 0.08)`,
-              padding: '5px 16px',
-              borderRadius: '20px',
-              fontSize: '11px',
-              letterSpacing: '1.5px',
-              fontWeight: 600,
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = `rgba(${rgb}, 0.18)`)}
-            onMouseLeave={(e) => (e.currentTarget.style.background = `rgba(${rgb}, 0.08)`)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
-      {/* Liens + Connexion — partiellement cachés sur mobile */}
+      {/* Liens + Connexion */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', position: 'relative' }}>
         {(['ACCUEIL', 'CLASSEMENTS', 'RECRUTEMENT'] as const).map((link) => (
           <span
@@ -129,7 +96,6 @@ export default function Navbar() {
 
       <style>{`
         @media (max-width: 768px) {
-          .guild-pills { display: none !important; }
           .nav-link { display: none !important; }
         }
       `}</style>

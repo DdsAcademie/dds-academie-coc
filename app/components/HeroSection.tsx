@@ -1,5 +1,11 @@
 'use client'
 
+const PILLS = [
+  { label: 'DDS ACADÉMIE', color: '#4a9eff', rgb: '74,158,255' },
+  { label: 'OPENSYS',      color: '#ff8c00', rgb: '255,140,0'  },
+  { label: 'いえすぽす',   color: '#9b59ff', rgb: '155,89,255' },
+]
+
 export default function HeroSection() {
   return (
     <div
@@ -9,19 +15,55 @@ export default function HeroSection() {
         textAlign: 'center',
       }}
     >
+      {/* Pré-titre */}
       <p
         style={{
           color: 'rgba(74,158,255,0.85)',
           fontSize: '11px',
           letterSpacing: '4px',
           textTransform: 'uppercase',
-          marginBottom: '1rem',
+          marginBottom: '0.75rem',
           marginTop: 0,
         }}
       >
         ✦&nbsp;&nbsp;Clash of Clans · Cluster Officiel&nbsp;&nbsp;✦
       </p>
 
+      {/* Pills des 3 guildes */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '0.75rem',
+          marginBottom: '1.25rem',
+          marginTop: '0.75rem',
+        }}
+      >
+        {PILLS.map(({ label, color, rgb }) => (
+          <button
+            key={label}
+            style={{
+              color,
+              border: `1px solid rgba(${rgb}, 0.45)`,
+              background: `rgba(${rgb}, 0.1)`,
+              padding: '6px 18px',
+              borderRadius: '20px',
+              fontSize: '11px',
+              fontWeight: 600,
+              letterSpacing: '1.5px',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = `rgba(${rgb}, 0.2)`)}
+            onMouseLeave={(e) => (e.currentTarget.style.background = `rgba(${rgb}, 0.1)`)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* Titre principal */}
       <h1
         style={{
           fontSize: 'clamp(40px, 6vw, 64px)',
@@ -45,6 +87,7 @@ export default function HeroSection() {
         </span>
       </h1>
 
+      {/* Tagline */}
       <p
         style={{
           color: '#6677aa',
@@ -57,6 +100,7 @@ export default function HeroSection() {
         3 GUILDES&nbsp;&nbsp;·&nbsp;&nbsp;1 COMMUNAUTÉ
       </p>
 
+      {/* Description */}
       <p
         style={{
           color: '#8899bb',
@@ -73,6 +117,7 @@ export default function HeroSection() {
         et rejoignez notre communauté sur Discord.
       </p>
 
+      {/* Boutons CTA */}
       <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
         <a
           href="https://discord.gg/P48WHFXaGT"
