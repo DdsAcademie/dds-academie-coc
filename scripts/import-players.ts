@@ -96,7 +96,7 @@ async function importPlayers() {
           trophies: member.trophies || 0,
           best_trophies: playerDetail?.bestTrophies || member.trophies || 0,
           exp_level: member.expLevel || 0,
-          role: member.role || 'member',
+          role: { member: 'membre', elder: 'ancien', coLeader: 'co-chef', leader: 'chef' }[member.role as string] || 'membre',
           dons: member.donations || 0,
           updated_at: new Date().toISOString(),
         }
