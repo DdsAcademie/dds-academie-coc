@@ -3,8 +3,17 @@
 import { useState } from 'react'
 import LoginPanel from './LoginPanel'
 
-export default function Navbar() {
+interface NavbarProps {
+  player?: { pseudo: string; clanTag?: string; clan_tag?: string; isAdmin?: boolean } | null
+}
+
+export default function Navbar({ player }: NavbarProps) {
   const [loginOpen, setLoginOpen] = useState(false)
+
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' })
+    window.location.href = '/'
+  }
 
   return (
     <nav
@@ -26,30 +35,14 @@ export default function Navbar() {
       }}
     >
       {/* Logo */}
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <span
-          style={{
-            fontSize: '18px',
-            fontWeight: 800,
-            letterSpacing: '3px',
-            color: '#c8a84b',
-            lineHeight: 1,
-          }}
-        >
+      <a href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+        <span style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '3px', color: '#c8a84b', lineHeight: 1 }}>
           DDS{' '}
         </span>
-        <span
-          style={{
-            fontSize: '18px',
-            fontWeight: 800,
-            letterSpacing: '3px',
-            color: '#ffffff',
-            lineHeight: 1,
-          }}
-        >
+        <span style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '3px', color: '#ffffff', lineHeight: 1 }}>
           CLUSTER
         </span>
-      </div>
+      </a>
 
       {/* Liens + Connexion */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', position: 'relative' }}>
@@ -57,13 +50,7 @@ export default function Navbar() {
           <span
             key={link}
             className="nav-link"
-            style={{
-              color: '#8899bb',
-              fontSize: '11px',
-              letterSpacing: '1.5px',
-              cursor: 'pointer',
-              transition: 'color 0.2s',
-            }}
+            style={{ color: '#8899bb', fontSize: '11px', letterSpacing: '1.5px', cursor: 'pointer', transition: 'color 0.2s' }}
             onMouseEnter={(e) => (e.currentTarget.style.color = '#c8a84b')}
             onMouseLeave={(e) => (e.currentTarget.style.color = '#8899bb')}
           >
@@ -71,27 +58,69 @@ export default function Navbar() {
           </span>
         ))}
 
-        <button
-          onClick={() => setLoginOpen(!loginOpen)}
-          style={{
-            background: 'linear-gradient(135deg, #c8a84b, #f0c060)',
-            border: 'none',
-            color: '#030712',
-            padding: '8px 20px',
-            borderRadius: '20px',
-            fontSize: '11px',
-            fontWeight: 700,
-            letterSpacing: '1.5px',
-            cursor: 'pointer',
-            transition: 'opacity 0.2s',
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.85')}
-          onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
-        >
-          CONNEXION
-        </button>
-
-        <LoginPanel isOpen={loginOpen} />
+        {player ? (
+          // Joueur connecté
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <a
+              href="/profil"
+              style={{
+                color: '#c8a84b',
+                fontSize: '11px',
+                fontWeight: 700,
+                letterSpacing: '1px',
+                textDecoration: 'none',
+                transition: 'opacity 0.2s',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.75')}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+            >
+              {player.pseudo}
+            </a>
+            <button
+              onClick={handleLogout}
+              style={{
+                background: 'rgba(200,168,75,0.1)',
+                border: '1px solid rgba(200,168,75,0.3)',
+                color: '#c8a84b',
+                padding: '7px 16px',
+                borderRadius: '20px',
+                fontSize: '10px',
+                fontWeight: 600,
+                letterSpacing: '1.5px',
+                cursor: 'pointer',
+                transition: 'background 0.2s',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(200,168,75,0.2)')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(200,168,75,0.1)')}
+            >
+              DÉCONNEXION
+            </button>
+          </div>
+        ) : (
+          // Non connecté
+          <>
+            <button
+              onClick={() => setLoginOpen(!loginOpen)}
+              style={{
+                background: 'linear-gradient(135deg, #c8a84b, #f0c060)',
+                border: 'none',
+                color: '#030712',
+                padding: '8px 20px',
+                borderRadius: '20px',
+                fontSize: '11px',
+                fontWeight: 700,
+                letterSpacing: '1.5px',
+                cursor: 'pointer',
+                transition: 'opacity 0.2s',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.85')}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+            >
+              CONNEXION
+            </button>
+            <LoginPanel isOpen={loginOpen} />
+          </>
+        )}
       </div>
 
       <style>{`

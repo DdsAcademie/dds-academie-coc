@@ -12,16 +12,28 @@ interface Particle {
   color: string
 }
 
-const PARTICLE_COLORS = ['#c8a84b', '#4a9eff', '#9b59ff', '#ff8c00']
+interface AnimatedBackgroundProps {
+  primaryColor?: string // RGB string ex: "74,158,255"
+}
 
-const ORBS = [
+const DEFAULT_ORBS = [
   { xRatio: 0.15, yRatio: 0.30, rgb: '74,158,255',  radius: 250, opacity: 0.12 },
   { xRatio: 0.85, yRatio: 0.20, rgb: '200,168,75',  radius: 300, opacity: 0.10 },
   { xRatio: 0.50, yRatio: 0.80, rgb: '155,89,255',  radius: 200, opacity: 0.12 },
   { xRatio: 0.30, yRatio: 0.65, rgb: '255,140,0',   radius: 180, opacity: 0.08 },
 ]
 
-export default function AnimatedBackground() {
+function buildOrbs(primaryColor?: string) {
+  if (!primaryColor) return DEFAULT_ORBS
+  return [
+    { xRatio: 0.15, yRatio: 0.30, rgb: primaryColor, radius: 280, opacity: 0.14 },
+    { xRatio: 0.85, yRatio: 0.20, rgb: '200,168,75', radius: 300, opacity: 0.08 },
+    { xRatio: 0.50, yRatio: 0.80, rgb: primaryColor, radius: 220, opacity: 0.10 },
+    { xRatio: 0.30, yRatio: 0.65, rgb: primaryColor, radius: 180, opacity: 0.07 },
+  ]
+}
+
+export default function AnimatedBackground({ primaryColor }: AnimatedBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -29,6 +41,11 @@ export default function AnimatedBackground() {
     if (!canvas) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
+
+    const ORBS = buildOrbs(primaryColor)
+    const PARTICLE_COLORS = primaryColor
+      ? [`rgba(${primaryColor},0.8)`, '#c8a84b', `rgba(${primaryColor},0.5)`]
+      : ['#c8a84b', '#4a9eff', '#9b59ff', '#ff8c00']
 
     const handleResize = () => {
       canvas.width = window.innerWidth
@@ -95,7 +112,7 @@ export default function AnimatedBackground() {
       cancelAnimationFrame(animationId)
       window.removeEventListener('resize', handleResize)
     }
-  }, [])
+  }, [primaryColor])
 
   return (
     <canvas
