@@ -8,7 +8,15 @@ import { GUILDES_CONFIG } from './lib/guildes-config'
 
 export const dynamic = 'force-dynamic'
 
-type GuildeWithApi = typeof GUILDES_CONFIG[0] & { apiData: Record<string, unknown> | null }
+type GuildeWithApi = typeof GUILDES_CONFIG[0] & {
+  apiData: {
+    name?: string
+    members?: number
+    clanLevel?: number
+    warLeague?: { name: string }
+    description?: string
+  } | null
+}
 
 function GuildesSection({ guildes }: { guildes: GuildeWithApi[] }) {
   return (
@@ -50,29 +58,22 @@ function GuildesSection({ guildes }: { guildes: GuildeWithApi[] }) {
           alignItems: 'stretch',
         }}
       >
-        {guildes.map((guilde) => {
-          const api = guilde.apiData as Record<string, unknown> | null
-          const warLeagueName = (api?.warLeague as Record<string, unknown> | null)?.name as string | undefined
-          return (
-            <GuildeCard
-              key={guilde.tag}
-              name={(api?.name as string) || guilde.staticName}
-              tag={guilde.tag}
-              category={guilde.category}
-              members={(api?.members as number) ?? 0}
-              maxMembers={50}
-              description={guilde.description}
-              apiData={api}
-              hdvRequirement={guilde.hdvRequirement}
-              primaryColor={guilde.primaryColor}
-              primaryColorRgb={guilde.primaryColorRgb}
-              logoUrl={guilde.logoUrl}
-              logoDelay={guilde.logoDelay}
-              discordUrl={guilde.discordUrl}
-              warLeague={warLeagueName || 'Non classé'}
-            />
-          )
-        })}
+        {guildes.map((guilde) => (
+          <GuildeCard
+            key={guilde.tag}
+            name={guilde.apiData?.name || guilde.staticName}
+            tag={guilde.tag}
+            category={guilde.category}
+            staticDescription={guilde.staticDescription}
+            hdvRequirement={guilde.hdvRequirement}
+            primaryColor={guilde.primaryColor}
+            primaryColorRgb={guilde.primaryColorRgb}
+            logoUrl={guilde.logoUrl}
+            logoDelay={guilde.logoDelay}
+            discordUrl={guilde.discordUrl}
+            apiData={guilde.apiData}
+          />
+        ))}
       </div>
 
       <style>{`
@@ -95,7 +96,7 @@ export default async function HomePage() {
 
   const guildes = GUILDES_CONFIG.map((config, index) => ({
     ...config,
-    apiData: clansData[index],
+    apiData: clansData[index] as GuildeWithApi['apiData'],
   }))
 
   return (

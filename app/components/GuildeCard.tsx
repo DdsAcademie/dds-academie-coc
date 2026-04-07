@@ -1,39 +1,44 @@
 'use client'
 
 interface GuildeCardProps {
+  // Données statiques (depuis guildes-config.ts)
   name: string
   tag: string
   category: string
-  members: number
-  maxMembers: number
-  description: string
-  apiData?: Record<string, unknown> | null
+  staticDescription: string
   hdvRequirement: string
   primaryColor: string
   primaryColorRgb: string
-  logoUrl: string | null
+  logoUrl: string
   logoDelay: number
   discordUrl: string
-  warLeague: string
+
+  // Données dynamiques (depuis l'API COC)
+  apiData: {
+    members?: number
+    clanLevel?: number
+    warLeague?: { name: string }
+    description?: string
+  } | null
 }
 
 export default function GuildeCard({
   name,
   tag,
   category,
-  members,
-  maxMembers,
-  description,
-  apiData,
+  staticDescription,
   hdvRequirement,
   primaryColor,
   primaryColorRgb,
   logoUrl,
   logoDelay,
-  discordUrl,
-  warLeague,
+  apiData,
 }: GuildeCardProps) {
-  const displayDescription = (apiData?.description as string) || description
+  const members = apiData?.members ?? 0
+  const clanLevel = apiData?.clanLevel ?? '?'
+  const warLeague = apiData?.warLeague?.name ?? 'Non classé'
+  const description = apiData?.description || staticDescription
+
   return (
     <div
       style={{
@@ -129,19 +134,6 @@ export default function GuildeCard({
         {name}
       </p>
 
-      {/* Ligue CWL */}
-      <p
-        style={{
-          color: '#c8a84b',
-          fontSize: '11px',
-          letterSpacing: '1px',
-          marginBottom: '0.5rem',
-          marginTop: 0,
-        }}
-      >
-        ⚔ {warLeague}
-      </p>
-
       {/* Tag / Catégorie */}
       <p
         style={{
@@ -159,7 +151,54 @@ export default function GuildeCard({
       {/* Compteur membres (dynamique) */}
       <div style={{ margin: '0 0 0.25rem' }}>
         <span style={{ color: '#ffffff', fontSize: '26px', fontWeight: 700 }}>{members}</span>
-        <span style={{ color: '#6677aa', fontSize: '13px', fontWeight: 400 }}> / {maxMembers} membres</span>
+        <span style={{ color: '#6677aa', fontSize: '13px', fontWeight: 400 }}> / 50 membres</span>
+      </div>
+
+      {/* Badges Niveau clan + Ligue CWL */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '8px',
+          margin: '0.75rem 0',
+          flexWrap: 'wrap',
+        }}
+      >
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '4px',
+            padding: '4px 12px',
+            borderRadius: '12px',
+            fontSize: '10px',
+            fontWeight: 600,
+            letterSpacing: '1px',
+            background: `rgba(${primaryColorRgb}, 0.12)`,
+            border: `1px solid rgba(${primaryColorRgb}, 0.3)`,
+            color: primaryColor,
+          }}
+        >
+          Niv. {clanLevel}
+        </span>
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '4px',
+            padding: '4px 12px',
+            borderRadius: '12px',
+            fontSize: '10px',
+            fontWeight: 600,
+            letterSpacing: '1px',
+            background: 'rgba(200, 168, 75, 0.1)',
+            border: '1px solid rgba(200, 168, 75, 0.3)',
+            color: '#c8a84b',
+          }}
+        >
+          {warLeague}
+        </span>
       </div>
 
       {/* Description */}
@@ -171,7 +210,7 @@ export default function GuildeCard({
           margin: '0.75rem 0 0.5rem',
         }}
       >
-        {displayDescription}
+        {description}
       </p>
 
       {/* Badge HDV */}
@@ -192,59 +231,28 @@ export default function GuildeCard({
         </span>
       </div>
 
-      {/* Boutons */}
-      <div
+      {/* Bouton VOIR LA GUILDE pleine largeur */}
+      <button
         style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '8px',
+          width: '100%',
+          background: `rgba(${primaryColorRgb}, 0.1)`,
+          border: `1px solid rgba(${primaryColorRgb}, 0.35)`,
+          color: primaryColor,
+          padding: '11px',
+          borderRadius: '8px',
+          fontSize: '11px',
+          letterSpacing: '1.5px',
+          fontWeight: 600,
+          cursor: 'pointer',
+          transition: 'background 0.2s',
+          textTransform: 'uppercase',
           marginTop: 'auto',
         }}
+        onMouseEnter={(e) => (e.currentTarget.style.background = `rgba(${primaryColorRgb}, 0.2)`)}
+        onMouseLeave={(e) => (e.currentTarget.style.background = `rgba(${primaryColorRgb}, 0.1)`)}
       >
-        <button
-          style={{
-            background: `rgba(${primaryColorRgb}, 0.1)`,
-            border: `1px solid rgba(${primaryColorRgb}, 0.35)`,
-            color: primaryColor,
-            padding: '9px 8px',
-            borderRadius: '8px',
-            fontSize: '10px',
-            letterSpacing: '1.5px',
-            fontWeight: 600,
-            cursor: 'pointer',
-            transition: 'background 0.2s',
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = `rgba(${primaryColorRgb}, 0.2)`)}
-          onMouseLeave={(e) => (e.currentTarget.style.background = `rgba(${primaryColorRgb}, 0.1)`)}
-        >
-          VOIR LA GUILDE
-        </button>
-        <a
-          href={discordUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            background: '#5865f2',
-            border: 'none',
-            color: '#ffffff',
-            padding: '9px 8px',
-            borderRadius: '8px',
-            fontSize: '10px',
-            letterSpacing: '1.5px',
-            fontWeight: 600,
-            cursor: 'pointer',
-            transition: 'background 0.2s',
-            textDecoration: 'none',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = '#4752c4')}
-          onMouseLeave={(e) => (e.currentTarget.style.background = '#5865f2')}
-        >
-          DISCORD
-        </a>
-      </div>
+        VOIR LA GUILDE
+      </button>
     </div>
   )
 }
