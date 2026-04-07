@@ -7,6 +7,7 @@ interface GuildeCardProps {
   members: number
   maxMembers: number
   description: string
+  apiData?: Record<string, unknown> | null
   hdvRequirement: string
   primaryColor: string
   primaryColorRgb: string
@@ -23,6 +24,7 @@ export default function GuildeCard({
   members,
   maxMembers,
   description,
+  apiData,
   hdvRequirement,
   primaryColor,
   primaryColorRgb,
@@ -31,6 +33,7 @@ export default function GuildeCard({
   discordUrl,
   warLeague,
 }: GuildeCardProps) {
+  const displayDescription = (apiData?.description as string) || description
   return (
     <div
       style={{
@@ -168,7 +171,7 @@ export default function GuildeCard({
           margin: '0.75rem 0 0.5rem',
         }}
       >
-        {description}
+        {displayDescription}
       </p>
 
       {/* Badge HDV */}

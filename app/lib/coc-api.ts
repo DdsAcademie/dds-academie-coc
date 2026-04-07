@@ -1,5 +1,4 @@
 const COC_API_BASE = 'https://api.clashofclans.com/v1'
-const COC_API_KEY = process.env.COC_API_KEY!
 
 function encodeTag(tag: string): string {
   return encodeURIComponent(tag.startsWith('#') ? tag : `#${tag}`)
@@ -7,7 +6,7 @@ function encodeTag(tag: string): string {
 
 function getHeaders() {
   return {
-    'Authorization': `Bearer ${COC_API_KEY}`,
+    'Authorization': `Bearer ${process.env.COC_API_KEY}`,
     'Content-Type': 'application/json',
   }
 }

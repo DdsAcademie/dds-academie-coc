@@ -31,7 +31,7 @@ export const GUILDES_CONFIG = [
     hdvRequirement: 'HDV 15+ FULL MAX',
     primaryColor: '#9b59ff',
     primaryColorRgb: '155,89,255',
-    logoUrl: null, // fichier absent du bucket — logo à uploader
+    logoUrl: 'https://khwjpdbckcgurxzawxie.supabase.co/storage/v1/object/public/LOGOS-DDS/いえすぽす.png',
     logoDelay: 2,
     discordUrl: 'https://discord.gg/P48WHFXaGT',
   },

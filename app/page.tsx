@@ -3,12 +3,14 @@ import Navbar from './components/Navbar'
 import HeroSection from './components/HeroSection'
 import StatsBar from './components/StatsBar'
 import GuildeCard from './components/GuildeCard'
-import { getAllClanStats } from './lib/clan-stats'
-import { GUILDES_CONFIG, FALLBACK_CLAN } from './lib/guildes-config'
+import { getAllClansInfo } from './lib/coc-api'
+import { GUILDES_CONFIG } from './lib/guildes-config'
 
 export const dynamic = 'force-dynamic'
 
-function GuildesSection({ clanStats }: { clanStats: Awaited<ReturnType<typeof getAllClanStats>> }) {
+type GuildeWithApi = typeof GUILDES_CONFIG[0] & { apiData: Record<string, unknown> | null }
+
+function GuildesSection({ guildes }: { guildes: GuildeWithApi[] }) {
   return (
     <section style={{ padding: '0 2rem 3rem 2rem' }}>
       {/* Titre de section */}
@@ -48,24 +50,26 @@ function GuildesSection({ clanStats }: { clanStats: Awaited<ReturnType<typeof ge
           alignItems: 'stretch',
         }}
       >
-        {GUILDES_CONFIG.map((config, i) => {
-          const stat = clanStats[i]
+        {guildes.map((guilde) => {
+          const api = guilde.apiData as Record<string, unknown> | null
+          const warLeagueName = (api?.warLeague as Record<string, unknown> | null)?.name as string | undefined
           return (
             <GuildeCard
-              key={config.tag}
-              name={stat.name || config.staticName}
-              tag={config.category}
-              category={config.category}
-              members={stat.members}
+              key={guilde.tag}
+              name={(api?.name as string) || guilde.staticName}
+              tag={guilde.tag}
+              category={guilde.category}
+              members={(api?.members as number) ?? 0}
               maxMembers={50}
-              description={config.description}
-              hdvRequirement={config.hdvRequirement}
-              primaryColor={config.primaryColor}
-              primaryColorRgb={config.primaryColorRgb}
-              logoUrl={config.logoUrl}
-              logoDelay={config.logoDelay}
-              discordUrl={config.discordUrl}
-              warLeague={stat.war_league}
+              description={guilde.description}
+              apiData={api}
+              hdvRequirement={guilde.hdvRequirement}
+              primaryColor={guilde.primaryColor}
+              primaryColorRgb={guilde.primaryColorRgb}
+              logoUrl={guilde.logoUrl}
+              logoDelay={guilde.logoDelay}
+              discordUrl={guilde.discordUrl}
+              warLeague={warLeagueName || 'Non classé'}
             />
           )
         })}
@@ -83,8 +87,16 @@ function GuildesSection({ clanStats }: { clanStats: Awaited<ReturnType<typeof ge
 }
 
 export default async function HomePage() {
-  const clanStats = await getAllClanStats()
-  const totalMembers = clanStats.reduce((sum, c) => sum + c.members, 0)
+  const clansData = await getAllClansInfo()
+
+  const totalMembers = clansData.reduce(
+    (sum, clan) => sum + ((clan?.members as number) ?? 0), 0
+  )
+
+  const guildes = GUILDES_CONFIG.map((config, index) => ({
+    ...config,
+    apiData: clansData[index],
+  }))
 
   return (
     <>
@@ -94,7 +106,7 @@ export default async function HomePage() {
         <main style={{ paddingTop: '64px' }}>
           <HeroSection />
           <StatsBar totalMembers={totalMembers} />
-          <GuildesSection clanStats={clanStats} />
+          <GuildesSection guildes={guildes} />
         </main>
       </div>
     </>
