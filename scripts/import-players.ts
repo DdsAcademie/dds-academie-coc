@@ -91,7 +91,7 @@ async function importPlayers() {
           pseudo: member.name,
           clan_tag: clan.tag,
           password_hash: passwordHash,
-          hdv_level: member.townHallLevel || 0,
+          hdv_level: Math.min(member.townHallLevel || 1, 17), // contrainte BDD à mettre à jour (TH18 existe)
           league: member.league?.name || 'Non classé',
           trophies: member.trophies || 0,
           best_trophies: playerDetail?.bestTrophies || member.trophies || 0,
