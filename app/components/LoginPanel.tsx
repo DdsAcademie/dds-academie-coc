@@ -17,7 +17,6 @@ const inputStyle: React.CSSProperties = {
 export default function LoginPanel({ isOpen }: { isOpen: boolean }) {
   const [mode, setMode] = useState<'player' | 'admin'>('player')
   const [pseudo, setPseudo] = useState('')
-  const [tag, setTag] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -31,7 +30,7 @@ export default function LoginPanel({ isOpen }: { isOpen: boolean }) {
 
     const body = mode === 'admin'
       ? { email, password }
-      : { pseudo, tag }
+      : { pseudo, password }
 
     const response = await fetch('/api/auth/login', {
       method: 'POST',
@@ -114,18 +113,25 @@ export default function LoginPanel({ isOpen }: { isOpen: boolean }) {
               onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(200,168,75,0.2)')}
             />
           </div>
-          <div style={{ marginBottom: '1.25rem' }}>
-            <label style={{ color: '#6677aa', fontSize: '10px', letterSpacing: '1.5px', display: 'block', marginBottom: '5px', fontWeight: 600 }}>TAG DE JEU</label>
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ color: '#6677aa', fontSize: '10px', letterSpacing: '1.5px', display: 'block', marginBottom: '5px', fontWeight: 600 }}>MOT DE PASSE</label>
             <input
-              type="text"
-              placeholder="#9J8Y0QYC0"
-              value={tag}
-              onChange={e => setTag(e.target.value)}
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
               style={inputStyle}
               onFocus={(e) => (e.currentTarget.style.borderColor = 'rgba(200,168,75,0.5)')}
               onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(200,168,75,0.2)')}
             />
-            <div style={{ color: '#4a9eff', fontSize: '10px', marginTop: '4px' }}>Ton tag Clash of Clans</div>
+          </div>
+          <div style={{ marginBottom: '1.25rem', textAlign: 'center' }}>
+            <span
+              onClick={() => window.location.href = '/first-login'}
+              style={{ color: '#4a9eff', fontSize: '11px', cursor: 'pointer', textDecoration: 'underline' }}
+            >
+              Première connexion ? Clique ici
+            </span>
           </div>
         </>
       ) : (

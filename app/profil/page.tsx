@@ -5,6 +5,13 @@ import { useRouter } from 'next/navigation'
 import AnimatedBackground from '@/app/components/AnimatedBackground'
 import Navbar from '@/app/components/Navbar'
 import ChangePasswordForm from '@/app/components/ChangePasswordForm'
+import PlayerStatsHeader from '@/app/components/PlayerStatsHeader'
+
+const CLAN_NAMES: Record<string, string> = {
+  '#2RJJJ2V09': 'DDS Académie',
+  '#8CLGGL8V': 'OpenSys',
+  '#99UPQRLJ': 'いえすぽす',
+}
 
 // Couleurs par clan
 const CLAN_COLORS: Record<string, { primary: string; rgb: string }> = {
@@ -87,75 +94,12 @@ export default function ProfilPage() {
         <Navbar player={player} />
         <main style={{ paddingTop: '80px', padding: '80px 2rem 2rem', maxWidth: '900px', margin: '0 auto' }}>
 
-          {/* HEADER PROFIL — Stats de base */}
-          <div style={{
-            background: `rgba(${clanColor.rgb}, 0.06)`,
-            border: `1px solid rgba(${clanColor.rgb}, 0.2)`,
-            borderRadius: '20px',
-            padding: '2rem',
-            marginBottom: '1.5rem',
-            position: 'relative',
-            overflow: 'hidden',
-          }}>
-            {/* Ligne lumineuse en haut */}
-            <div style={{
-              position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
-              width: '60%', height: '1px',
-              background: `linear-gradient(to right, transparent, ${clanColor.primary}, transparent)`,
-            }} />
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '1.5rem' }}>
-              {/* Avatar placeholder */}
-              <div style={{
-                width: '72px', height: '72px', borderRadius: '50%',
-                background: `rgba(${clanColor.rgb}, 0.15)`,
-                border: `2px solid rgba(${clanColor.rgb}, 0.4)`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '28px', flexShrink: 0,
-              }}>
-                ⚔
-              </div>
-              <div>
-                <div style={{ color: clanColor.primary, fontSize: '22px', fontWeight: 700 }}>
-                  {player.pseudo}
-                </div>
-                <div style={{ color: '#6677aa', fontSize: '12px', letterSpacing: '1.5px' }}>
-                  {player.tag}
-                </div>
-              </div>
-            </div>
-
-            {/* Grille de stats */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-              gap: '1rem',
-            }}>
-              {[
-                { label: 'HDV', value: player.hdvLevel },
-                { label: 'TROPHÉES', value: player.trophies?.toLocaleString() },
-                { label: 'MEILLEURS TROPHÉES', value: player.bestTrophies?.toLocaleString() },
-                { label: 'NIVEAU EXP', value: player.expLevel },
-                { label: 'LIGUE', value: player.league || 'Non classé' },
-                { label: 'RÔLE', value: player.role },
-              ].map((stat, i) => (
-                <div key={i} style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  borderRadius: '10px',
-                  padding: '0.875rem',
-                  textAlign: 'center',
-                  border: '1px solid rgba(255,255,255,0.06)',
-                }}>
-                  <div style={{ color: '#fff', fontSize: '16px', fontWeight: 700 }}>
-                    {stat.value}
-                  </div>
-                  <div style={{ color: '#6677aa', fontSize: '9px', letterSpacing: '1.5px', marginTop: '2px' }}>
-                    {stat.label}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          {/* HEADER PROFIL — Stats avec assets COC */}
+          <PlayerStatsHeader
+            player={player}
+            clanColor={clanColor}
+            clanName={CLAN_NAMES[player.clanTag] || 'DDS Cluster'}
+          />
 
           {/* SECTION CHANGEMENT DE MOT DE PASSE */}
           <ChangePasswordForm clanColor={clanColor} />

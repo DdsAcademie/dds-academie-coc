@@ -28,23 +28,18 @@ export async function POST(request: NextRequest) {
         if (isValid) player = data
       }
     }
-    // Connexion joueur normal par pseudo + tag
-    else if (pseudo && tag) {
-      const normalizedTag = tag.startsWith('#')
-        ? tag.toUpperCase()
-        : `#${tag.toUpperCase()}`
-
+    // Connexion joueur normal par pseudo + mot de passe
+    else if (pseudo && password) {
       const { data } = await supabase
         .from('players')
         .select('*')
         .eq('pseudo', pseudo)
-        .eq('tag', normalizedTag)
+        .neq('tag', '#SUPERADMIN')
         .single()
 
       if (data) {
-        const isValid = await bcrypt.compare(tag, data.password_hash)
-        const isValidNorm = await bcrypt.compare(normalizedTag, data.password_hash)
-        if (isValid || isValidNorm) player = data
+        const isValid = await bcrypt.compare(password, data.password_hash)
+        if (isValid) player = data
       }
     } else {
       return NextResponse.json(
