@@ -75,12 +75,7 @@ export default function ProfilPage() {
     <>
       <AnimatedBackground primaryColor={clanColor.rgb} />
       <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh' }}>
-        <Navbar player={{
-          pseudo: player.pseudo,
-          clanTag: player.clanTag,
-          isAdmin: player.isAdmin,
-          isSuperAdmin: player.isSuperAdmin,
-        }} />
+        <Navbar />
         <main style={{ paddingTop: '80px', padding: '80px 2rem 2rem', maxWidth: '900px', margin: '0 auto' }}>
 
           <PlayerStatsHeader

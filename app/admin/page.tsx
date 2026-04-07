@@ -105,7 +105,7 @@ export default function AdminPage() {
     <>
       <AnimatedBackground primaryColor="200,168,75" />
       <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh' }}>
-        <Navbar player={currentPlayer} />
+        <Navbar />
         <main style={{ paddingTop: '80px', padding: '80px 2rem 2rem', maxWidth: '1100px', margin: '0 auto' }}>
 
           {/* Header */}

@@ -1,15 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import LoginPanel from './LoginPanel'
 
-interface NavbarProps {
-  player?: {
-    pseudo: string
-    clanTag?: string
-    isAdmin?: boolean
-    isSuperAdmin?: boolean
-  } | null
+interface ConnectedPlayer {
+  pseudo: string
+  clanTag: string
+  isAdmin: boolean
+  isSuperAdmin: boolean
 }
 
 const CLAN_COLOR_MAP: Record<string, { primary: string; rgb: string }> = {
@@ -18,35 +16,58 @@ const CLAN_COLOR_MAP: Record<string, { primary: string; rgb: string }> = {
   '#99UPQRLJ':  { primary: '#9b59ff', rgb: '155,89,255' },
 }
 
-const menuItemStyle: React.CSSProperties = {
+const CLAN_NAMES: Record<string, string> = {
+  '#2RJJJ2V09': 'DDS Académie',
+  '#8CLGGL8V': 'OpenSys',
+  '#99UPQRLJ': 'いえすぽす',
+}
+
+const dropdownItemStyle: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: '8px',
-  padding: '8px 12px',
-  borderRadius: '8px',
+  gap: '10px',
+  padding: '9px 12px',
+  borderRadius: '10px',
   fontSize: '13px',
   color: '#fff',
   textDecoration: 'none',
   cursor: 'pointer',
+  background: 'transparent',
+  width: '100%',
+  border: 'none',
+  textAlign: 'left',
 }
 
-function UserMenu({ player }: { player: NonNullable<NavbarProps['player']> }) {
+function UserMenu({ player }: { player: ConnectedPlayer }) {
   const [open, setOpen] = useState(false)
+
+  const clan = CLAN_COLOR_MAP[player.clanTag] || { primary: '#c8a84b', rgb: '200,168,75' }
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' })
     window.location.href = '/'
   }
 
-  const clan = CLAN_COLOR_MAP[player.clanTag || ''] || { primary: '#c8a84b', rgb: '200,168,75' }
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      if (!target.closest('[data-dropdown]')) {
+        setOpen(false)
+      }
+    }
+    if (open) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [open])
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div style={{ position: 'relative' }} data-dropdown="true">
       <button
         onClick={() => setOpen(!open)}
         style={{
-          background: `rgba(${clan.rgb}, 0.12)`,
-          border: `1px solid ${clan.primary}`,
+          background: `rgba(${clan.rgb}, 0.1)`,
+          border: `1px solid rgba(${clan.rgb}, 0.45)`,
           color: clan.primary,
           padding: '7px 16px',
           borderRadius: '20px',
@@ -56,73 +77,114 @@ function UserMenu({ player }: { player: NonNullable<NavbarProps['player']> }) {
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
-          gap: '6px',
+          gap: '8px',
+          transition: 'all 0.2s',
         }}
       >
         {player.pseudo}
-        <span style={{ fontSize: '8px' }}>▼</span>
+        <span style={{
+          fontSize: '8px',
+          transition: 'transform 0.2s',
+          transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
+          display: 'inline-block',
+        }}>▼</span>
       </button>
 
       {open && (
-        <>
-          {/* Overlay pour fermer au clic extérieur */}
-          <div
-            style={{ position: 'fixed', inset: 0, zIndex: 150 }}
-            onClick={() => setOpen(false)}
-          />
+        <div style={{
+          position: 'absolute',
+          top: '48px',
+          right: 0,
+          background: 'rgba(10, 14, 30, 0.96)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          border: '1px solid rgba(200, 168, 75, 0.25)',
+          borderRadius: '16px',
+          padding: '0.75rem',
+          minWidth: '200px',
+          zIndex: 200,
+          boxShadow: '0 8px 40px rgba(0,0,0,0.5), 0 0 60px rgba(200,168,75,0.04)',
+        }}>
+
+          {/* En-tête pseudo + clan */}
           <div style={{
-            position: 'absolute',
-            top: '42px',
-            right: 0,
-            background: 'rgba(10, 14, 30, 0.97)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: '12px',
-            padding: '8px',
-            minWidth: '180px',
-            zIndex: 200,
-            boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+            padding: '8px 12px 12px',
+            borderBottom: '1px solid rgba(255,255,255,0.06)',
+            marginBottom: '6px',
           }}>
-            {/* Mon profil */}
-            <a href="/profil" style={menuItemStyle}
-              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-            >
-              <span>⚔</span> Mon profil
-            </a>
-
-            {/* Administration — seulement pour admin/superadmin */}
-            {(player.isAdmin || player.isSuperAdmin) && (
-              <a href="/admin" style={{ ...menuItemStyle, color: '#c8a84b' }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(200,168,75,0.08)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-              >
-                <span>🛡</span> Administration
-              </a>
-            )}
-
-            {/* Séparateur */}
-            <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)', margin: '4px 0' }} />
-
-            {/* Déconnexion */}
-            <button
-              onClick={handleLogout}
-              style={{ ...menuItemStyle, width: '100%', background: 'none', border: 'none', color: '#ff6b6b', textAlign: 'left' }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(220,50,50,0.08)')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-            >
-              <span>↩</span> Se déconnecter
-            </button>
+            <div style={{ color: '#fff', fontSize: '14px', fontWeight: 600 }}>
+              {player.pseudo}
+            </div>
+            <div style={{ color: '#6677aa', fontSize: '10px', letterSpacing: '1px', marginTop: '2px' }}>
+              {CLAN_NAMES[player.clanTag] || 'DDS Cluster'}
+            </div>
           </div>
-        </>
+
+          {/* Mon profil */}
+          <a
+            href="/profil"
+            style={dropdownItemStyle}
+            onClick={() => setOpen(false)}
+            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+          >
+            <span style={{ fontSize: '14px' }}>⚔</span>
+            <span>Mon profil</span>
+          </a>
+
+          {/* Administration — uniquement admin/superadmin */}
+          {(player.isAdmin || player.isSuperAdmin) && (
+            <a
+              href="/admin"
+              style={{ ...dropdownItemStyle, color: '#c8a84b' }}
+              onClick={() => setOpen(false)}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(200,168,75,0.08)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+            >
+              <span style={{ fontSize: '14px' }}>🛡</span>
+              <span>Administration</span>
+            </a>
+          )}
+
+          {/* Séparateur */}
+          <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)', margin: '6px 0' }} />
+
+          {/* Se déconnecter */}
+          <button
+            onClick={handleLogout}
+            style={{ ...dropdownItemStyle, color: '#ff6b6b' }}
+            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(220,50,50,0.08)')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+          >
+            <span style={{ fontSize: '14px' }}>↩</span>
+            <span>Se déconnecter</span>
+          </button>
+
+        </div>
       )}
     </div>
   )
 }
 
-export default function Navbar({ player }: NavbarProps) {
+export default function Navbar() {
+  const [player, setPlayer] = useState<ConnectedPlayer | null>(null)
   const [loginOpen, setLoginOpen] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then(r => r.json())
+      .then(data => {
+        if (data.player) {
+          setPlayer({
+            pseudo: data.player.pseudo,
+            clanTag: data.player.clanTag,
+            isAdmin: data.player.isAdmin,
+            isSuperAdmin: data.player.isSuperAdmin,
+          })
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   return (
     <nav
@@ -153,7 +215,7 @@ export default function Navbar({ player }: NavbarProps) {
         </span>
       </a>
 
-      {/* Liens + Connexion */}
+      {/* Liens + Auth */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', position: 'relative' }}>
         {(['ACCUEIL', 'CLASSEMENTS', 'RECRUTEMENT'] as const).map((link) => (
           <span
