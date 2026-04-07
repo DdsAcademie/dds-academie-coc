@@ -46,11 +46,7 @@ export default function FirstLoginPage() {
     const data = await response.json()
 
     if (data.success) {
-      if (data.isAdmin || data.isSuperAdmin) {
-        router.push('/admin')
-      } else {
-        router.push('/profil')
-      }
+      router.push('/profil')
     } else {
       setError(data.error || 'Erreur inconnue')
       setLoading(false)

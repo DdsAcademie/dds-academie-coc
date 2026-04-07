@@ -37,12 +37,9 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true)
   const [currentPlayer, setCurrentPlayer] = useState<{
     pseudo: string
-    clanTag?: string
-    clan_tag?: string
-    isAdmin?: boolean
-    is_admin?: boolean
-    isSuperAdmin?: boolean
-    is_superadmin?: boolean
+    clanTag: string
+    isAdmin: boolean
+    isSuperAdmin: boolean
   } | null>(null)
   const [filter, setFilter] = useState<string>('all')
   const [resetting, setResetting] = useState<string | null>(null)
@@ -54,10 +51,13 @@ export default function AdminPage() {
       .then(data => {
         const p = data.player
         if (!p) { router.push('/'); return }
-        const isAdmin = p.is_admin ?? p.isAdmin
-        const isSuperAdmin = p.is_superadmin ?? p.isSuperAdmin
-        if (!isAdmin && !isSuperAdmin) { router.push('/'); return }
-        setCurrentPlayer(p)
+        if (!p.isAdmin && !p.isSuperAdmin) { router.push('/'); return }
+        setCurrentPlayer({
+          pseudo: p.pseudo,
+          clanTag: p.clanTag,
+          isAdmin: p.isAdmin,
+          isSuperAdmin: p.isSuperAdmin,
+        })
         return fetch('/api/admin/players')
       })
       .then(r => r?.json())

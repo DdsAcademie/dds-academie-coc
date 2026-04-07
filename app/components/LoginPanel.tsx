@@ -43,8 +43,6 @@ export default function LoginPanel({ isOpen }: { isOpen: boolean }) {
     if (data.success) {
       if (data.firstLogin) {
         window.location.href = '/first-login'
-      } else if (data.isSuperAdmin || data.isAdmin) {
-        window.location.href = '/admin'
       } else {
         window.location.href = '/profil'
       }

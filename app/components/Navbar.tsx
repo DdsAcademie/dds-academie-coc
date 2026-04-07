@@ -4,16 +4,125 @@ import { useState } from 'react'
 import LoginPanel from './LoginPanel'
 
 interface NavbarProps {
-  player?: { pseudo: string; clanTag?: string; clan_tag?: string; isAdmin?: boolean } | null
+  player?: {
+    pseudo: string
+    clanTag?: string
+    isAdmin?: boolean
+    isSuperAdmin?: boolean
+  } | null
 }
 
-export default function Navbar({ player }: NavbarProps) {
-  const [loginOpen, setLoginOpen] = useState(false)
+const CLAN_COLOR_MAP: Record<string, { primary: string; rgb: string }> = {
+  '#2RJJJ2V09': { primary: '#4a9eff', rgb: '74,158,255' },
+  '#8CLGGL8V':  { primary: '#ff8c00', rgb: '255,140,0' },
+  '#99UPQRLJ':  { primary: '#9b59ff', rgb: '155,89,255' },
+}
+
+const menuItemStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+  padding: '8px 12px',
+  borderRadius: '8px',
+  fontSize: '13px',
+  color: '#fff',
+  textDecoration: 'none',
+  cursor: 'pointer',
+}
+
+function UserMenu({ player }: { player: NonNullable<NavbarProps['player']> }) {
+  const [open, setOpen] = useState(false)
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' })
     window.location.href = '/'
   }
+
+  const clan = CLAN_COLOR_MAP[player.clanTag || ''] || { primary: '#c8a84b', rgb: '200,168,75' }
+
+  return (
+    <div style={{ position: 'relative' }}>
+      <button
+        onClick={() => setOpen(!open)}
+        style={{
+          background: `rgba(${clan.rgb}, 0.12)`,
+          border: `1px solid ${clan.primary}`,
+          color: clan.primary,
+          padding: '7px 16px',
+          borderRadius: '20px',
+          fontSize: '12px',
+          fontWeight: 600,
+          letterSpacing: '1px',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+        }}
+      >
+        {player.pseudo}
+        <span style={{ fontSize: '8px' }}>▼</span>
+      </button>
+
+      {open && (
+        <>
+          {/* Overlay pour fermer au clic extérieur */}
+          <div
+            style={{ position: 'fixed', inset: 0, zIndex: 150 }}
+            onClick={() => setOpen(false)}
+          />
+          <div style={{
+            position: 'absolute',
+            top: '42px',
+            right: 0,
+            background: 'rgba(10, 14, 30, 0.97)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: '12px',
+            padding: '8px',
+            minWidth: '180px',
+            zIndex: 200,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+          }}>
+            {/* Mon profil */}
+            <a href="/profil" style={menuItemStyle}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+            >
+              <span>⚔</span> Mon profil
+            </a>
+
+            {/* Administration — seulement pour admin/superadmin */}
+            {(player.isAdmin || player.isSuperAdmin) && (
+              <a href="/admin" style={{ ...menuItemStyle, color: '#c8a84b' }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(200,168,75,0.08)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+              >
+                <span>🛡</span> Administration
+              </a>
+            )}
+
+            {/* Séparateur */}
+            <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)', margin: '4px 0' }} />
+
+            {/* Déconnexion */}
+            <button
+              onClick={handleLogout}
+              style={{ ...menuItemStyle, width: '100%', background: 'none', border: 'none', color: '#ff6b6b', textAlign: 'left' }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(220,50,50,0.08)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+            >
+              <span>↩</span> Se déconnecter
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
+export default function Navbar({ player }: NavbarProps) {
+  const [loginOpen, setLoginOpen] = useState(false)
 
   return (
     <nav
@@ -59,45 +168,8 @@ export default function Navbar({ player }: NavbarProps) {
         ))}
 
         {player ? (
-          // Joueur connecté
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <a
-              href="/profil"
-              style={{
-                color: '#c8a84b',
-                fontSize: '11px',
-                fontWeight: 700,
-                letterSpacing: '1px',
-                textDecoration: 'none',
-                transition: 'opacity 0.2s',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.75')}
-              onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
-            >
-              {player.pseudo}
-            </a>
-            <button
-              onClick={handleLogout}
-              style={{
-                background: 'rgba(200,168,75,0.1)',
-                border: '1px solid rgba(200,168,75,0.3)',
-                color: '#c8a84b',
-                padding: '7px 16px',
-                borderRadius: '20px',
-                fontSize: '10px',
-                fontWeight: 600,
-                letterSpacing: '1.5px',
-                cursor: 'pointer',
-                transition: 'background 0.2s',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(200,168,75,0.2)')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(200,168,75,0.1)')}
-            >
-              DÉCONNEXION
-            </button>
-          </div>
+          <UserMenu player={player} />
         ) : (
-          // Non connecté
           <>
             <button
               onClick={() => setLoginOpen(!loginOpen)}

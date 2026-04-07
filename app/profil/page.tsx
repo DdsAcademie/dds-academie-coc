@@ -13,11 +13,10 @@ const CLAN_NAMES: Record<string, string> = {
   '#99UPQRLJ': 'いえすぽす',
 }
 
-// Couleurs par clan
 const CLAN_COLORS: Record<string, { primary: string; rgb: string }> = {
-  '#2RJJJ2V09': { primary: '#4a9eff', rgb: '74,158,255' },   // DDS Académie → bleu
-  '#8CLGGL8V':  { primary: '#ff8c00', rgb: '255,140,0' },    // OpenSys → orange
-  '#99UPQRLJ':  { primary: '#9b59ff', rgb: '155,89,255' },   // いえすぽす → violet
+  '#2RJJJ2V09': { primary: '#4a9eff', rgb: '74,158,255' },
+  '#8CLGGL8V':  { primary: '#ff8c00', rgb: '255,140,0' },
+  '#99UPQRLJ':  { primary: '#9b59ff', rgb: '155,89,255' },
 }
 
 interface Player {
@@ -25,19 +24,14 @@ interface Player {
   pseudo: string
   tag: string
   clanTag: string
-  clan_tag: string
   isAdmin: boolean
-  is_admin: boolean
+  isSuperAdmin: boolean
   firstLogin: boolean
-  first_login: boolean
   hdvLevel: number
-  hdv_level: number
   league: string
   trophies: number
   bestTrophies: number
-  best_trophies: number
   expLevel: number
-  exp_level: number
   role: string
   dons: number
 }
@@ -55,22 +49,12 @@ export default function ProfilPage() {
           router.push('/')
           return
         }
-        // Supabase retourne snake_case, normaliser
         const p = data.player
-        const normalized = {
-          ...p,
-          clanTag: p.clan_tag ?? p.clanTag,
-          isAdmin: p.is_admin ?? p.isAdmin,
-          firstLogin: p.first_login ?? p.firstLogin,
-          hdvLevel: p.hdv_level ?? p.hdvLevel,
-          bestTrophies: p.best_trophies ?? p.bestTrophies,
-          expLevel: p.exp_level ?? p.expLevel,
-        }
-        if (normalized.firstLogin) {
+        if (p.firstLogin) {
           router.push('/first-login')
           return
         }
-        setPlayer(normalized)
+        setPlayer(p)
         setLoading(false)
       })
   }, [router])
@@ -91,17 +75,20 @@ export default function ProfilPage() {
     <>
       <AnimatedBackground primaryColor={clanColor.rgb} />
       <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh' }}>
-        <Navbar player={player} />
+        <Navbar player={{
+          pseudo: player.pseudo,
+          clanTag: player.clanTag,
+          isAdmin: player.isAdmin,
+          isSuperAdmin: player.isSuperAdmin,
+        }} />
         <main style={{ paddingTop: '80px', padding: '80px 2rem 2rem', maxWidth: '900px', margin: '0 auto' }}>
 
-          {/* HEADER PROFIL — Stats avec assets COC */}
           <PlayerStatsHeader
             player={player}
             clanColor={clanColor}
             clanName={CLAN_NAMES[player.clanTag] || 'DDS Cluster'}
           />
 
-          {/* SECTION CHANGEMENT DE MOT DE PASSE */}
           <ChangePasswordForm clanColor={clanColor} />
 
         </main>

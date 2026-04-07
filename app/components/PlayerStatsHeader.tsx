@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { getHdvImageUrl, getLeagueImageUrl, getLeagueDisplayName } from '@/app/lib/coc-assets'
 
 interface PlayerStatsHeaderProps {
@@ -17,6 +18,40 @@ interface PlayerStatsHeaderProps {
   }
   clanColor: { primary: string; rgb: string }
   clanName: string
+}
+
+function AssetImage({ src, alt, fallbackText }: { src: string; alt: string; fallbackText: string }) {
+  const [hasError, setHasError] = useState(false)
+
+  if (hasError) {
+    return (
+      <div style={{
+        width: '64px', height: '64px',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        margin: '0 auto 0.5rem',
+        fontSize: '11px', color: '#6677aa', textAlign: 'center',
+      }}>
+        {fallbackText}
+      </div>
+    )
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      width={64}
+      height={64}
+      style={{
+        width: '64px',
+        height: '64px',
+        objectFit: 'contain',
+        display: 'block',
+        margin: '0 auto 0.5rem',
+      }}
+      onError={() => setHasError(true)}
+    />
+  )
 }
 
 export default function PlayerStatsHeader({ player, clanColor, clanName }: PlayerStatsHeaderProps) {
@@ -68,7 +103,7 @@ export default function PlayerStatsHeader({ player, clanColor, clanName }: Playe
         </div>
       </div>
 
-      {/* Grille principale : HDV + Ligue côte à côte */}
+      {/* Grille principale : HDV + Ligue + Trophées + Niveau EXP */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
@@ -84,15 +119,10 @@ export default function PlayerStatsHeader({ player, clanColor, clanName }: Playe
           padding: '1.25rem',
           textAlign: 'center',
         }}>
-          <img
+          <AssetImage
             src={getHdvImageUrl(player.hdvLevel)}
             alt={`HDV ${player.hdvLevel}`}
-            width={64}
-            height={64}
-            style={{ objectFit: 'contain', margin: '0 auto 0.5rem', display: 'block' }}
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.display = 'none'
-            }}
+            fallbackText={`HDV ${player.hdvLevel}`}
           />
           <div style={{ color: '#fff', fontSize: '18px', fontWeight: 700 }}>
             HDV {player.hdvLevel}
@@ -110,15 +140,10 @@ export default function PlayerStatsHeader({ player, clanColor, clanName }: Playe
           padding: '1.25rem',
           textAlign: 'center',
         }}>
-          <img
+          <AssetImage
             src={getLeagueImageUrl(player.league)}
-            alt={player.league}
-            width={64}
-            height={64}
-            style={{ objectFit: 'contain', margin: '0 auto 0.5rem', display: 'block' }}
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.display = 'none'
-            }}
+            alt={getLeagueDisplayName(player.league)}
+            fallbackText={getLeagueDisplayName(player.league)}
           />
           <div style={{ color: '#c8a84b', fontSize: '14px', fontWeight: 700 }}>
             {getLeagueDisplayName(player.league)}
