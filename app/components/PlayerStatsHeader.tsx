@@ -1,6 +1,6 @@
 'use client'
 
-import { getHdvImageUrl, getLeagueImageUrl, getLeagueShortName } from '@/app/lib/coc-assets'
+import { getHdvImageUrl, getLeagueImageUrl, getLeagueDisplayName } from '@/app/lib/coc-assets'
 
 interface PlayerStatsHeaderProps {
   player: {
@@ -87,12 +87,9 @@ export default function PlayerStatsHeader({ player, clanColor, clanName }: Playe
           <img
             src={getHdvImageUrl(player.hdvLevel)}
             alt={`HDV ${player.hdvLevel}`}
-            style={{
-              width: '64px', height: '64px',
-              objectFit: 'contain',
-              margin: '0 auto 0.5rem',
-              display: 'block',
-            }}
+            width={64}
+            height={64}
+            style={{ objectFit: 'contain', margin: '0 auto 0.5rem', display: 'block' }}
             onError={(e) => {
               (e.target as HTMLImageElement).style.display = 'none'
             }}
@@ -116,18 +113,15 @@ export default function PlayerStatsHeader({ player, clanColor, clanName }: Playe
           <img
             src={getLeagueImageUrl(player.league)}
             alt={player.league}
-            style={{
-              width: '64px', height: '64px',
-              objectFit: 'contain',
-              margin: '0 auto 0.5rem',
-              display: 'block',
-            }}
+            width={64}
+            height={64}
+            style={{ objectFit: 'contain', margin: '0 auto 0.5rem', display: 'block' }}
             onError={(e) => {
               (e.target as HTMLImageElement).style.display = 'none'
             }}
           />
           <div style={{ color: '#c8a84b', fontSize: '14px', fontWeight: 700 }}>
-            {getLeagueShortName(player.league)}
+            {getLeagueDisplayName(player.league)}
           </div>
           <div style={{ color: '#6677aa', fontSize: '10px', letterSpacing: '1.5px', marginTop: '2px' }}>
             LIGUE ACTUELLE

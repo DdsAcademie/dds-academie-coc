@@ -86,13 +86,15 @@ async function importPlayers() {
         const defaultPassword = member.tag // ex: #9J8Y0QYC0
         const passwordHash = await bcrypt.hash(defaultPassword, 10)
 
+        const leagueName = playerDetail?.league?.name || member.league?.name || 'Non classé'
+
         const playerData = {
           tag: member.tag,
           pseudo: member.name,
           clan_tag: clan.tag,
           password_hash: passwordHash,
-          hdv_level: Math.min(member.townHallLevel || 1, 17), // contrainte BDD à mettre à jour (TH18 existe)
-          league: member.league?.name || 'Non classé',
+          hdv_level: member.townHallLevel || 1,
+          league: leagueName,
           trophies: member.trophies || 0,
           best_trophies: playerDetail?.bestTrophies || member.trophies || 0,
           exp_level: member.expLevel || 0,
