@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
 
     const { data: player } = await supabase
       .from('players')
-      .select('id, pseudo, tag, clan_tag, is_admin, first_login, hdv_level, league, trophies, best_trophies, exp_level, role, dons')
+      .select('id, pseudo, tag, clan_tag, is_admin, is_superadmin, first_login, hdv_level, league, trophies, best_trophies, exp_level, role, dons')
       .eq('id', decoded.playerId)
       .single()
 

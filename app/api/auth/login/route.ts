@@ -8,52 +8,59 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-const JWT_SECRET = process.env.JWT_SECRET!
-
 export async function POST(request: NextRequest) {
   try {
-    const { pseudo, tag } = await request.json()
+    const { pseudo, tag, email, password } = await request.json()
 
-    if (!pseudo || !tag) {
+    let player = null
+
+    // Connexion superadmin par email
+    if (email && password) {
+      const { data } = await supabase
+        .from('players')
+        .select('*')
+        .eq('email', email)
+        .eq('is_superadmin', true)
+        .single()
+
+      if (data) {
+        const isValid = await bcrypt.compare(password, data.password_hash)
+        if (isValid) player = data
+      }
+    }
+    // Connexion joueur normal par pseudo + tag
+    else if (pseudo && tag) {
+      const normalizedTag = tag.startsWith('#')
+        ? tag.toUpperCase()
+        : `#${tag.toUpperCase()}`
+
+      const { data } = await supabase
+        .from('players')
+        .select('*')
+        .eq('pseudo', pseudo)
+        .eq('tag', normalizedTag)
+        .single()
+
+      if (data) {
+        const isValid = await bcrypt.compare(tag, data.password_hash)
+        const isValidNorm = await bcrypt.compare(normalizedTag, data.password_hash)
+        if (isValid || isValidNorm) player = data
+      }
+    } else {
       return NextResponse.json(
-        { error: 'Pseudo et tag requis' },
+        { error: 'Identifiants manquants' },
         { status: 400 }
       )
     }
 
-    // Normaliser le tag (ajouter # si manquant, mettre en majuscules)
-    const normalizedTag = tag.startsWith('#')
-      ? tag.toUpperCase()
-      : `#${tag.toUpperCase()}`
-
-    // Chercher le joueur par pseudo ET tag
-    const { data: player, error } = await supabase
-      .from('players')
-      .select('*')
-      .eq('pseudo', pseudo)
-      .eq('tag', normalizedTag)
-      .single()
-
-    if (error || !player) {
+    if (!player) {
       return NextResponse.json(
-        { error: 'Joueur non trouvé. Vérifie ton pseudo et ton tag.' },
+        { error: 'Identifiants incorrects' },
         { status: 401 }
       )
     }
 
-    // Vérifier le mot de passe
-    const isValidPassword = await bcrypt.compare(tag, player.password_hash)
-    // Essayer aussi avec le tag normalisé
-    const isValidNormalized = await bcrypt.compare(normalizedTag, player.password_hash)
-
-    if (!isValidPassword && !isValidNormalized) {
-      return NextResponse.json(
-        { error: 'Mot de passe incorrect' },
-        { status: 401 }
-      )
-    }
-
-    // Générer le token JWT
+    // Générer le JWT
     const token = jwt.sign(
       {
         playerId: player.id,
@@ -61,22 +68,25 @@ export async function POST(request: NextRequest) {
         tag: player.tag,
         clanTag: player.clan_tag,
         isAdmin: player.is_admin,
+        isSuperAdmin: player.is_superadmin,
         firstLogin: player.first_login,
       },
-      JWT_SECRET,
+      process.env.JWT_SECRET!,
       { expiresIn: '7d' }
     )
 
-    // Réponse avec le token dans un cookie httpOnly
     const response = NextResponse.json({
       success: true,
       firstLogin: player.first_login,
+      isAdmin: player.is_admin,
+      isSuperAdmin: player.is_superadmin,
       player: {
         id: player.id,
         pseudo: player.pseudo,
         tag: player.tag,
         clanTag: player.clan_tag,
         isAdmin: player.is_admin,
+        isSuperAdmin: player.is_superadmin,
         hdvLevel: player.hdv_level,
         league: player.league,
         trophies: player.trophies,
@@ -88,7 +98,7 @@ export async function POST(request: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7, // 7 jours
+      maxAge: 60 * 60 * 24 * 7,
       path: '/',
     })
 
@@ -96,9 +106,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Erreur login:', error)
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }
