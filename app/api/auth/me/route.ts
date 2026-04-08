@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import * as jwt from 'jsonwebtoken'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
   try {
     const token = request.cookies.get('dds_token')?.value
     if (!token) {
@@ -18,7 +19,7 @@ export async function GET(request: NextRequest) {
 
     const { data: p } = await supabase
       .from('players')
-      .select('id, pseudo, tag, clan_tag, is_admin, is_superadmin, first_login, hdv_level, league, trophies, best_trophies, exp_level, role, dons')
+      .select('id, pseudo, tag, clan_tag, is_admin, is_superadmin, first_login, hdv_level, league, league_id, league_icon_url, trophies, best_trophies, exp_level, role, dons')
       .eq('id', decoded.playerId)
       .single()
 
@@ -35,6 +36,8 @@ export async function GET(request: NextRequest) {
         firstLogin: p.first_login,
         hdvLevel: p.hdv_level,
         league: p.league,
+        leagueId: p.league_id,           // NOUVEAU
+        leagueIconUrl: p.league_icon_url, // NOUVEAU
         trophies: p.trophies,
         bestTrophies: p.best_trophies,
         expLevel: p.exp_level,
